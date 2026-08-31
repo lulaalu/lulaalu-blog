@@ -9,7 +9,7 @@
     "summary": "a test",
     "cover": "/blogs/a-test-for-pic/f4adbc4683ab1b43.png",
     "hidden": false,
-    "category": ""
+    "category": "web-test"
   },
   {
     "slug": "test01",
@@ -18,6 +18,6 @@
     "date": "2026-08-31T16:00",
     "summary": "test01",
     "hidden": false,
-    "category": ""
+    "category": "web-test"
   }
 ]
