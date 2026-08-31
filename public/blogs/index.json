@@ -19,5 +19,134 @@
     "summary": "test01",
     "hidden": false,
     "category": ""
+  },
+  {
+    "slug": "reading-to-live",
+    "title": "读完《活着》",
+    "tags": [
+      "随笔",
+      "文学",
+      "读后感",
+      "活着",
+      "余华"
+    ],
+    "date": "2026-08-04T00:00",
+    "summary": "读完《活着》后的一些难以言说的情绪。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "xiaomi-car-notes",
+    "title": "小米汽车观察",
+    "tags": [
+      "随笔",
+      "产品",
+      "观察",
+      "小米"
+    ],
+    "date": "2026-08-03T00:00",
+    "summary": "从一架小米汽车宣传片里看到的思路。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "on-the-urge-to-share",
+    "title": "关于分享欲",
+    "tags": [
+      "随笔",
+      "感悟",
+      "创作",
+      "分享"
+    ],
+    "date": "2026-05-08T00:00",
+    "summary": "看到笨豆的视频后，关于创作与分享欲的感触。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "luck-of-loving-learning",
+    "title": "最幸运的是热爱学习",
+    "tags": [
+      "随笔",
+      "热爱",
+      "学习",
+      "幸运"
+    ],
+    "date": "2026-03-29T00:00",
+    "summary": "热爱学习的力量，成就了现在的我。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "thinking-after-retest",
+    "title": "复试之后的一些思考",
+    "tags": [
+      "随笔",
+      "考研",
+      "幸运",
+      "规划",
+      "AI"
+    ],
+    "date": "2026-03-25T00:00",
+    "summary": "复试出分后，关于幸运、努力与未来方向。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "preparing-for-retest",
+    "title": "准备复试中",
+    "tags": [
+      "随笔",
+      "考研",
+      "复试",
+      "成长"
+    ],
+    "date": "2026-03-14T00:00",
+    "summary": "复试前的一些琐碎与焦虑。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "kaoyan-results-2026",
+    "title": "考研成绩出来了",
+    "tags": [
+      "随笔",
+      "考研",
+      "交流",
+      "成长",
+      "主体性"
+    ],
+    "date": "2026-03-03T00:00",
+    "summary": "成绩出来后，关于与长辈交流与主体性的一些思考。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "a-month-after-kaoyan",
+    "title": "考研后的一个月",
+    "tags": [
+      "随笔",
+      "考研",
+      "成长",
+      "感悟"
+    ],
+    "date": "2026-01-09T00:00",
+    "summary": "考研后的一个月，关于默契、命运与未来的一些念头。",
+    "hidden": false,
+    "category": "随笔"
+  },
+  {
+    "slug": "remembering-grandma",
+    "title": "记外婆",
+    "tags": [
+      "随笔",
+      "亲情",
+      "回忆",
+      "家人"
+    ],
+    "date": "2025-09-04T00:00",
+    "summary": "回忆与外婆有关的那些时光。",
+    "hidden": false,
+    "category": "随笔"
   }
 ]
