@@ -38,7 +38,7 @@ export default function BlogPage() {
 	const [editableItems, setEditableItems] = useState<BlogIndexItem[]>([])
 	const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set())
 	const [saving, setSaving] = useState(false)
-	const [displayMode, setDisplayMode] = useState<DisplayMode>('year')
+	const [displayMode, setDisplayMode] = useState<DisplayMode>('category')
 	const [categoryModalOpen, setCategoryModalOpen] = useState(false)
 	const [categoryList, setCategoryList] = useState<string[]>([])
 	const [newCategory, setNewCategory] = useState('')
