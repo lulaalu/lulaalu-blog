@@ -12,15 +12,6 @@
     "category": "web-test"
   },
   {
-    "slug": "test01",
-    "title": "test01",
-    "tags": [],
-    "date": "2026-08-31T16:00",
-    "summary": "test01",
-    "hidden": false,
-    "category": "web-test"
-  },
-  {
     "slug": "reading-to-live",
     "title": "读完《活着》",
     "tags": [
