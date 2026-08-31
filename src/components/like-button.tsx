@@ -1,5 +1,6 @@
+'use client'
+
 import { useCallback, useEffect, useState } from 'react'
-import useSWR from 'swr'
 import { motion, AnimatePresence } from 'motion/react'
 import { Heart } from 'lucide-react'
 import clsx from 'clsx'
@@ -13,20 +14,55 @@ type LikeButtonProps = {
 	delay?: number
 }
 
-const ENDPOINT = 'https://blog-liker.yysuni1001.workers.dev/api/like'
+type LikeState = {
+	count: number
+	lastDate: string
+}
 
-export default function LikeButton({ slug = 'yysuni', delay, className }: LikeButtonProps) {
-	slug = BLOG_SLUG_KEY + slug
-	const [liked, setLiked] = useState(false)
+const STORAGE_PREFIX = 'lulaalu-likes-'
+
+function todayStr(): string {
+	const d = new Date()
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function loadState(slug: string): LikeState {
+	if (typeof window === 'undefined') return { count: 0, lastDate: '' }
+	try {
+		const raw = window.localStorage.getItem(STORAGE_PREFIX + slug)
+		if (!raw) return { count: 0, lastDate: '' }
+		const parsed = JSON.parse(raw) as LikeState
+		return { count: typeof parsed.count === 'number' ? parsed.count : 0, lastDate: parsed.lastDate || '' }
+	} catch {
+		return { count: 0, lastDate: '' }
+	}
+}
+
+function saveState(slug: string, state: LikeState): void {
+	try {
+		window.localStorage.setItem(STORAGE_PREFIX + slug, JSON.stringify(state))
+	} catch {
+		// ignore
+	}
+}
+
+export default function LikeButton({ slug = 'site', delay, className }: LikeButtonProps) {
+	const key = BLOG_SLUG_KEY + slug
 	const [show, setShow] = useState(false)
+	const [liked, setLiked] = useState(false)
 	const [justLiked, setJustLiked] = useState(false)
 	const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([])
+	const [count, setCount] = useState(0)
 
 	useEffect(() => {
-		setTimeout(() => {
-			setShow(true)
-		}, delay || 1000)
-	}, [])
+		setTimeout(() => setShow(true), delay || 1000)
+	}, [delay])
+
+	useEffect(() => {
+		const state = loadState(key)
+		setCount(state.count)
+		setLiked(state.lastDate === todayStr())
+	}, [key])
 
 	useEffect(() => {
 		if (justLiked) {
@@ -35,47 +71,28 @@ export default function LikeButton({ slug = 'yysuni', delay, className }: LikeBu
 		}
 	}, [justLiked])
 
-	const fetcher = useCallback(async (url: string): Promise<number | null> => {
-		const res = await fetch(url, { method: 'GET', cache: 'no-store' })
-		if (!res.ok) return null
-		const data = await res.json().catch(() => ({}))
-		return typeof data?.count === 'number' ? data.count : null
-	}, [])
+	const handleLike = useCallback(() => {
+		const today = todayStr()
+		const state = loadState(key)
+		if (state.lastDate === today) {
+			toast('谢谢啦😘，今天已经点过啦💕')
+			return
+		}
 
-	const { data: fetchedCount, mutate } = useSWR(slug ? `${ENDPOINT}?slug=${encodeURIComponent(slug)}` : null, fetcher, {
-		revalidateOnFocus: false,
-		dedupingInterval: 1000 * 10
-	})
-
-	const handleLike = useCallback(async () => {
-		if (!slug) return
+		const next = { count: (state.count || 0) + 1, lastDate: today }
+		saveState(key, next)
+		setCount(next.count)
 		setLiked(true)
 		setJustLiked(true)
 
-		// Create particle effects
 		const newParticles = Array.from({ length: 6 }, (_, i) => ({
 			id: Date.now() + i,
 			x: Math.random() * 60 - 30,
 			y: Math.random() * 60 - 30
 		}))
 		setParticles(newParticles)
-
-		// Clear particles after animation
 		setTimeout(() => setParticles([]), 1000)
-
-		try {
-			const url = `${ENDPOINT}?slug=${encodeURIComponent(slug)}`
-			const res = await fetch(url, { method: 'POST' })
-			const data = await res.json().catch(() => ({}))
-			if (data.reason == 'rate_limited') toast('谢谢啦😘，今天已经不能再点赞啦💕')
-			const value = typeof data?.count === 'number' ? data.count : (fetchedCount ?? 0) + 1
-			await mutate(value, { revalidate: false })
-		} catch {
-			// ignore
-		}
-	}, [slug, fetchedCount, mutate])
-
-	const count = typeof fetchedCount === 'number' ? fetchedCount : null
+	}, [key])
 
 	if (show)
 		return (
@@ -93,12 +110,7 @@ export default function LikeButton({ slug = 'yysuni', delay, className }: LikeBu
 							key={particle.id}
 							className='pointer-events-none absolute inset-0 flex items-center justify-center'
 							initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-							animate={{
-								opacity: [1, 1, 0],
-								scale: [0, 1.2, 0.8],
-								x: particle.x,
-								y: particle.y
-							}}
+							animate={{ opacity: [1, 1, 0], scale: [0, 1.2, 0.8], x: particle.x, y: particle.y }}
 							exit={{ opacity: 0 }}
 							transition={{ duration: 0.8, ease: 'easeOut' }}>
 							<Heart className='fill-rose-400 text-rose-400' size={12} />
@@ -106,17 +118,16 @@ export default function LikeButton({ slug = 'yysuni', delay, className }: LikeBu
 					))}
 				</AnimatePresence>
 
-				{typeof count === 'number' && (
-					<motion.span
-						initial={{ scale: 0.4 }}
-						animate={{ scale: 1 }}
-						className={cn(
-							'absolute -top-2 left-9 min-w-6 rounded-full px-1.5 py-1 text-center text-xs text-white tabular-nums',
-							liked ? 'bg-rose-400' : 'bg-gray-300'
-						)}>
-						{count}
-					</motion.span>
-				)}
+				<motion.span
+					initial={{ scale: 0.4 }}
+					animate={{ scale: 1 }}
+					className={cn(
+						'absolute -top-2 left-9 min-w-6 rounded-full px-1.5 py-1 text-center text-xs text-white tabular-nums',
+						liked ? 'bg-rose-400' : 'bg-gray-300'
+					)}>
+					{count}
+				</motion.span>
+
 				<motion.div animate={justLiked ? { scale: [1, 1.4, 1], rotate: [0, -10, 10, 0] } : {}} transition={{ duration: 0.6, ease: 'easeOut' }}>
 					<Heart className={clsx('heartbeat', liked ? 'fill-rose-400 text-rose-400' : 'fill-rose-200 text-rose-200')} size={28} />
 				</motion.div>
