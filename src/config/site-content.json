@@ -36,7 +36,7 @@
 			"url": "/images/art/1c7b726fe720679b.jpg"
 		}
 	],
-	"currentArtImageId": "a46372ff45bc5524",
+	"currentArtImageId": "1c7b726fe720679b",
 	"backgroundImages": [
 		{
 			"id": "",
@@ -50,14 +50,14 @@
 			"type": "github",
 			"value": "https://github.com/lulaalu",
 			"label": "Github",
-			"order": 2
+			"order": 1
 		},
 		{
 			"id": "email",
 			"type": "email",
 			"value": "lulaalu616@gmail.com",
 			"label": "",
-			"order": 1
+			"order": 2
 		}
 	],
 	"clockShowSeconds": false,
