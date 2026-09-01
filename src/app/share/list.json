@@ -272,5 +272,16 @@
 			"AI"
 		],
 		"stars": 4
+	},
+	{
+		"name": "NCM2MP3",
+		"logo": "https://ncm2mp3.xyz/icon.png",
+		"url": "https://ncm2mp3.xyz/",
+		"description": "用于网易云ncm格式音频转mp3格式，开源项目，对应桌面版在will-17173/tauri-ncm2mp3",
+		"tags": [
+			"音频",
+			"工具"
+		],
+		"stars": 4
 	}
 ]
