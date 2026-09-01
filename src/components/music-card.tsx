@@ -8,11 +8,12 @@ import { CARD_SPACING } from '@/consts'
 import MusicSVG from '@/svgs/music.svg'
 import PlaySVG from '@/svgs/play.svg'
 import { HomeDraggableLayer } from '../app/(home)/home-draggable-layer'
-import { Pause } from 'lucide-react'
+import { Pause, ListMusic } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
+import musicList from '@/config/music.json'
 
-const MUSIC_FILES = ['/music/close-to-you.mp3']
+const MUSIC_TRACKS = musicList.tracks as Array<{ name: string; file: string }>
 
 export default function MusicCard() {
 	const pathname = usePathname()
@@ -26,13 +27,13 @@ export default function MusicCard() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [progress, setProgress] = useState(0)
+	const [listOpen, setListOpen] = useState(false)
 	const audioRef = useRef<HTMLAudioElement | null>(null)
 	const currentIndexRef = useRef(0)
 
 	const isHomePage = pathname === '/'
 
 	const position = useMemo(() => {
-		// If not on home page, always position at bottom-right corner when playing
 		if (!isHomePage) {
 			return {
 				x: center.width - styles.width - 16,
@@ -40,7 +41,6 @@ export default function MusicCard() {
 			}
 		}
 
-		// Default position on home page
 		return {
 			x: styles.offsetX !== null ? center.x + styles.offsetX : center.x + CARD_SPACING + hiCardStyles.width / 2 - styles.offset,
 			y: styles.offsetY !== null ? center.y + styles.offsetY : center.y - clockCardStyles.offset + CARD_SPACING + calendarCardStyles.height + CARD_SPACING
@@ -49,34 +49,26 @@ export default function MusicCard() {
 
 	const { x, y } = position
 
-	// Initialize audio element
 	useEffect(() => {
 		if (!audioRef.current) {
 			audioRef.current = new Audio()
 		}
 
 		const audio = audioRef.current
-
 		const updateProgress = () => {
 			if (audio.duration) {
 				setProgress((audio.currentTime / audio.duration) * 100)
 			}
 		}
-
 		const handleEnded = () => {
-			const nextIndex = (currentIndexRef.current + 1) % MUSIC_FILES.length
+			if (MUSIC_TRACKS.length === 0) return
+			const nextIndex = (currentIndexRef.current + 1) % MUSIC_TRACKS.length
 			currentIndexRef.current = nextIndex
 			setCurrentIndex(nextIndex)
 			setProgress(0)
 		}
-
-		const handleTimeUpdate = () => {
-			updateProgress()
-		}
-
-		const handleLoadedMetadata = () => {
-			updateProgress()
-		}
+		const handleTimeUpdate = () => updateProgress()
+		const handleLoadedMetadata = () => updateProgress()
 
 		audio.addEventListener('timeupdate', handleTimeUpdate)
 		audio.addEventListener('ended', handleEnded)
@@ -89,13 +81,12 @@ export default function MusicCard() {
 		}
 	}, [])
 
-	// Handle currentIndex change - load new audio
 	useEffect(() => {
 		currentIndexRef.current = currentIndex
 		if (audioRef.current) {
 			const wasPlaying = !audioRef.current.paused
 			audioRef.current.pause()
-			audioRef.current.src = MUSIC_FILES[currentIndex]
+			audioRef.current.src = MUSIC_TRACKS[currentIndex]?.file || ''
 			audioRef.current.loop = false
 			setProgress(0)
 
@@ -105,7 +96,6 @@ export default function MusicCard() {
 		}
 	}, [currentIndex])
 
-	// Handle play/pause state change
 	useEffect(() => {
 		if (!audioRef.current) return
 
@@ -116,7 +106,6 @@ export default function MusicCard() {
 		}
 	}, [isPlaying])
 
-	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			if (audioRef.current) {
@@ -126,14 +115,18 @@ export default function MusicCard() {
 		}
 	}, [])
 
-	const togglePlayPause = () => {
-		setIsPlaying(!isPlaying)
+	const playTrack = (index: number) => {
+		setCurrentIndex(index)
+		setIsPlaying(true)
+		setListOpen(false)
 	}
 
-	// Hide component if not on home page and not playing
-	if (!isHomePage && !isPlaying) {
-		return null
-	}
+	const togglePlayPause = () => setIsPlaying(prev => !prev)
+
+	if (MUSIC_TRACKS.length === 0) return null
+	if (!isHomePage && !isPlaying) return null
+
+	const track = MUSIC_TRACKS[currentIndex]
 
 	return (
 		<HomeDraggableLayer cardKey='musicCard' x={x} y={y} width={styles.width} height={styles.height}>
@@ -155,19 +148,42 @@ export default function MusicCard() {
 					</>
 				)}
 
-				<MusicSVG className='h-8 w-8' />
+				<MusicSVG className='h-8 w-8 shrink-0' />
 
-				<div className='flex-1'>
-					<div className='text-secondary text-sm'>Close To You</div>
-
+				<div className='min-w-0 flex-1'>
+					<div className='text-secondary truncate text-sm'>{track?.name}</div>
 					<div className='mt-1 h-2 rounded-full bg-white/60'>
 						<div className='bg-linear h-full rounded-full transition-all duration-300' style={{ width: `${progress}%` }} />
 					</div>
 				</div>
 
-				<button onClick={togglePlayPause} className='flex h-10 w-10 items-center justify-center rounded-full bg-white transition-opacity hover:opacity-80'>
-					{isPlaying ? <Pause className='text-brand h-4 w-4' /> : <PlaySVG className='text-brand ml-1 h-4 w-4' />}
-				</button>
+				<div className='flex shrink-0 items-center gap-1.5'>
+					<button onClick={togglePlayPause} aria-label='播放/暂停' className='flex h-9 w-9 items-center justify-center rounded-full bg-white transition-opacity hover:opacity-80'>
+						{isPlaying ? <Pause className='text-brand h-4 w-4' /> : <PlaySVG className='text-brand ml-0.5 h-4 w-4' />}
+					</button>
+					<button onClick={() => setListOpen(prev => !prev)} aria-label='播放列表' className={clsx('flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-80', listOpen ? 'bg-brand/15' : 'bg-white')}>
+						<ListMusic className='text-brand h-4 w-4' />
+					</button>
+				</div>
+
+				{listOpen && (
+					<div className={clsx('absolute z-30 w-[300px] overflow-hidden rounded-xl border bg-white/85 p-1 shadow-lg backdrop-blur', isHomePage ? 'top-full left-0' : 'bottom-full right-0')}>
+						<div className='max-h-[200px] overflow-y-auto'>
+							{MUSIC_TRACKS.map((t, i) => (
+								<button
+									key={t.file}
+									onClick={() => playTrack(i)}
+									className={clsx(
+										'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors',
+										i === currentIndex ? 'text-brand bg-brand/10 font-medium' : 'text-secondary hover:bg-white/70 hover:text-primary'
+									)}>
+									<span className='truncate'>{t.name}</span>
+									{i === currentIndex && <span className='ml-auto h-1.5 w-1.5 rounded-full bg-brand' />}
+								</button>
+							))}
+						</div>
+					</div>
+				)}
 			</Card>
 		</HomeDraggableLayer>
 	)

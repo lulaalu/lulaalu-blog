@@ -46,3 +46,6 @@ next-env.d.ts
 
 #vscode
 .history/
+
+# manual commit convention (local only, not committed)
+GIT_COMMIT_CONVENTION.md
