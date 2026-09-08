@@ -30,6 +30,7 @@ export default function MusicCard() {
 	const [listOpen, setListOpen] = useState(false)
 	const audioRef = useRef<HTMLAudioElement | null>(null)
 	const currentIndexRef = useRef(0)
+	const isPlayingRef = useRef(false)
 
 	const isHomePage = pathname === '/'
 
@@ -84,7 +85,9 @@ export default function MusicCard() {
 	useEffect(() => {
 		currentIndexRef.current = currentIndex
 		if (audioRef.current) {
-			const wasPlaying = !audioRef.current.paused
+			// 用用户意图判断是否继续播放，而不是 audio.paused。
+			// 一首歌自然结束时 audio.paused 会变为 true，导致自动切换后不再播放而卡住。
+			const wasPlaying = isPlayingRef.current
 			audioRef.current.pause()
 			audioRef.current.src = MUSIC_TRACKS[currentIndex]?.file || ''
 			audioRef.current.loop = false
@@ -95,6 +98,10 @@ export default function MusicCard() {
 			}
 		}
 	}, [currentIndex])
+
+	useEffect(() => {
+		isPlayingRef.current = isPlaying
+	}, [isPlaying])
 
 	useEffect(() => {
 		if (!audioRef.current) return
